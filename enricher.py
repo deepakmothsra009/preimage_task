@@ -3,6 +3,7 @@ import pickle
 import os
 import multiprocessing as mp
 import time
+from configurations import RABBITMQ_HOST
 
 
 def create_result_file(latest_version_path, project_meta_dict):
@@ -25,7 +26,7 @@ def create_result_file(latest_version_path, project_meta_dict):
 
 
 def send_result_to_consumer(result_file_path, project_meta_dict):
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost"))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST))
     channel = connection.channel()
     channel.exchange_declare(exchange="consumer", exchange_type="fanout")
     message = pickle.dumps((result_file_path, project_meta_dict))
@@ -49,7 +50,7 @@ def callback(ch, method, properties, body):
 
 print(" [*] Waiting for data from Injestor. To exit press CTRL+C")
 if __name__ == "__main__":
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost"))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST))
     channel = connection.channel()
     channel.exchange_declare(exchange="enricher", exchange_type="fanout")
     result = channel.queue_declare(queue="", exclusive=True)

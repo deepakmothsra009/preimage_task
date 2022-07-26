@@ -1,0 +1,2 @@
+CREATE DATABASE preimage;
+GRANT ALL PRIVILEGES ON DATABASE preimage TO postgres;

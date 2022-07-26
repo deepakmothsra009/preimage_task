@@ -4,7 +4,7 @@ import os, shutil
 from db_helper import get_latest_project_version
 import time
 import multiprocessing as mp
-from configurations import PROJECT_FOLDER, EXTERNAL_RABBITMQ_HOST
+from configurations import PROJECT_FOLDER, RABBITMQ_HOST, S3_DATA_PATH
 
 
 def copy_image(source_path, dest_path):
@@ -18,9 +18,11 @@ def get_images_from_s3(s3_project_path, project_meta_dict):
     # s3_project_path = os.path.join(
     #     "/Users/dkm/", s3_project_path
     # )  # only when testing locally
-    images_list = os.listdir(s3_project_path)
     project_name = project_meta_dict["project_name"]
     latest_version = project_meta_dict["latest_version"]
+    # below is the actual path of folder in s3
+    s3_project_path = os.path.join( S3_DATA_PATH, project_name )
+    images_list = os.listdir(s3_project_path)
     dest_folder = os.path.join(PROJECT_FOLDER, project_name, latest_version)
     os.makedirs(dest_folder, exist_ok=True)
     time.sleep(5)
@@ -33,7 +35,7 @@ def get_images_from_s3(s3_project_path, project_meta_dict):
 
 
 def send_message_to_enricher(latest_version_path, project_meta_dict):
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost"))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST))
     channel = connection.channel()
     channel.exchange_declare(exchange="enricher", exchange_type="fanout")
     message = pickle.dumps((latest_version_path, project_meta_dict))
@@ -61,7 +63,7 @@ def callback(ch, method, properties, body):
 print("Waiting for data from image_pusher. To exit press CTRL+C")
 if __name__ == "__main__":
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host=EXTERNAL_RABBITMQ_HOST)
+        pika.ConnectionParameters(host=RABBITMQ_HOST)
     )
     channel = connection.channel()
     channel.exchange_declare(exchange="injestor", exchange_type="fanout")

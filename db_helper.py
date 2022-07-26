@@ -1,10 +1,22 @@
 import os
 import psycopg2
+from configurations import POSTGRES_HOST
 
-
-def create_databse(cursor):
-    query_command = """CREATE DATABASE project"""
-    cursor.execute(query_command)
+def create_databse():
+    connection = psycopg2.connect(
+        user="postgres",
+        password="postgres",
+        host=POSTGRES_HOST,
+        port="5432",
+    )
+    connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+    cursor = connection.cursor()
+    cursor.execute("SELECT datname FROM pg_database WHERE datname='preimage';")
+    if not cursor.fetchone():
+        query_command = """CREATE DATABASE preimage"""
+        cursor.execute(query_command)
+    cursor.close()
+    connection.close()
 
 
 def create_user_info_table(cursor):
@@ -37,9 +49,9 @@ def create_project_version_result_table(cursor):
 
 def get_latest_project_version(user, project_name):
     connection = psycopg2.connect(
-        user="dkm",
-        password="dkm123",
-        host="host.docker.internal",
+        user="postgres",
+        password="postgres",
+        host=POSTGRES_HOST,
         port="5432",
         database="preimage",
     )
@@ -74,6 +86,8 @@ def get_latest_project_version(user, project_name):
         cursor.execute(query_command)
         query_return = cursor.fetchone()
         project_version_name = query_return[0]
+        cursor.close()
+        connection.close()
         return project_version_name
     else:
         query_command = """SELECT project_version_name , project_version_number , project_id FROM project_version_table 
@@ -93,15 +107,18 @@ def get_latest_project_version(user, project_name):
             project_id, latest_project_version_name, latest_project_version_number
         )
         cursor.execute(query_command)
+        cursor.close()
+        connection.close()
         return latest_project_version_name
 
 
 if __name__ == "__main__":
 
+    create_databse()
     connection = psycopg2.connect(
-        user="dkm",
-        password="dkm123",
-        host="host.docker.internal",
+        user="postgres",
+        password="postgres",
+        host=POSTGRES_HOST,
         port="5432",
         database="preimage",
     )
@@ -112,6 +129,8 @@ if __name__ == "__main__":
     create_project_info_table(cursor)
     create_project_version_table(cursor)
     create_project_version_result_table(cursor)
+    cursor.close()
+    connection.close()
     # user_name = sys.argv[1]
     # project_name = sys.argv[2]
     # project_version_name = get_latest_project_version(user_name , project_name, cursor)

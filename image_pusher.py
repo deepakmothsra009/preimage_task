@@ -3,9 +3,7 @@ import sys
 import os, shutil
 import pickle
 import multiprocessing as mp
-from configurations import S3_DATA_PATH
-
-projects_path = "/Users/dkm/preimage_task/projects/"
+from configurations import S3_DATA_PATH, SAMPLE_PROJECT_PATH
 
 
 def send_data_to_injester(s3_project_path, project_meta_dict):
@@ -29,7 +27,7 @@ def upload_images_to_s3(project_name):
     """
     we are not actually storing the data in s3 here, but storing files locally
     """
-    project_folder = os.path.join(projects_path, project_name)
+    project_folder = os.path.join(SAMPLE_PROJECT_PATH, project_name)
     images_list = os.listdir(project_folder)
     dest_folder = os.path.join(S3_DATA_PATH, project_name)
     os.makedirs(dest_folder, exist_ok=True)

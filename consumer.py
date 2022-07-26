@@ -1,7 +1,7 @@
 import pika
 import pickle
 import os, shutil
-from configurations import S3_DATA_PATH, EXTERNAL_RABBITMQ_HOST
+from configurations import S3_DATA_PATH, RABBITMQ_HOST
 
 
 def copy_result(source_path, dest_path):
@@ -18,7 +18,7 @@ def upload_result_to_s3(result_file_path, project_meta_dict):
 
 def send_result_to_ext_consumers(result_file_path, project_meta_dict):
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host=EXTERNAL_RABBITMQ_HOST)
+        pika.ConnectionParameters(host=RABBITMQ_HOST)
     )
     channel = connection.channel()
     channel.exchange_declare(exchange="ext_consumer", exchange_type="topic")
@@ -42,7 +42,7 @@ def callback(ch, method, properties, body):
 
 print(" [*] Waiting for data from Enricher. To exit press CTRL+C")
 if __name__ == "__main__":
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost"))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST))
     channel = connection.channel()
     channel.exchange_declare(exchange="consumer", exchange_type="fanout")
     result = channel.queue_declare(queue="", exclusive=True)
