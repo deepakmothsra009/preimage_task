@@ -8,13 +8,13 @@ from configurations import S3_DATA_PATH, SAMPLE_PROJECT_PATH
 
 def send_data_to_injester(s3_project_path, project_meta_dict):
     """
-    this function is used to send p3 project path to injestor
+    this function is used to send p3 project path to ingestor
     """
     connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost"))
     channel = connection.channel()
-    channel.exchange_declare(exchange="injestor", exchange_type="fanout")
+    channel.exchange_declare(exchange="ingestor", exchange_type="fanout")
     message = pickle.dumps((s3_project_path, project_meta_dict))
-    channel.basic_publish(exchange="injestor", routing_key="", body=message)
+    channel.basic_publish(exchange="ingestor", routing_key="", body=message)
     print(" [x] Sent %r" % message)
     connection.close()
 
@@ -38,7 +38,7 @@ def upload_images_to_s3(project_name):
 
 
 """
-This script is used to send latest project data to the injestor
+This script is used to send latest project data to the ingestor
 """
 if __name__ == "__main__":
     user_name = sys.argv[1] if len(sys.argv) > 1 else None
