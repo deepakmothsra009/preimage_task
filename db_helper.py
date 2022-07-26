@@ -2,6 +2,7 @@ import os
 import psycopg2
 from configurations import POSTGRES_HOST
 
+
 def create_databse():
     connection = psycopg2.connect(
         user="postgres",
@@ -43,7 +44,7 @@ def create_project_version_table(cursor):
 def create_project_version_result_table(cursor):
     query_command = """CREATE TABLE IF NOT EXISTS project_version_result_table 
                     ( version_result_id SERIAL PRIMARY KEY , project_version_id INTEGER REFERENCES
-                     project_version_table , project_version_name TEXT )"""
+                     project_version_table , project_version_result_path TEXT )"""
     cursor.execute(query_command)
 
 
