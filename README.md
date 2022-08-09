@@ -41,8 +41,7 @@ To setup preimage_container (which has ingestor, enricher, consumer services)
 * sudo docker build -f docker/Dockerfile . -t preimage_task:v1
 
 #change source path in below command
-* sudo docker run --detach --mount 'type=bind,src=/home/deepak/data,dst=/data' --add-host=host.docker.internal:host-gateway --env-file docker/docker.env --
-name preimage_container.v1 -d preimage_task:v1
+* sudo docker run --detach --mount 'type=bind,src=/home/deepak/data,dst=/data' --add-host=host.docker.internal:host-gateway --env-file docker/docker.env --name preimage_container.v1 -d preimage_task:v1
 
 To push images for a project (from outside the container)
 * python3 image_pusher.py <user_name> <project_name>
